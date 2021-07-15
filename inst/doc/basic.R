@@ -39,7 +39,7 @@ bf
 
 ## -----------------------------------------------------------------------------
 d <- 2.03 / sqrt(80) # convert t to d
-data_model <- likelihood(family = "noncentral_d", d, 79)
+data_model <- likelihood(family = "noncentral_d", d, 80)
 h0_mod <- prior(family = "point", point = 0)
 h1_mod <- prior(family = "cauchy",  scale = 1)
 
@@ -48,7 +48,7 @@ bf
 
 ## -----------------------------------------------------------------------------
 d <- 2.03 / sqrt(80) # convert t to d
-data_model <- likelihood(family = "noncentral_d", d, 79)
+data_model <- likelihood(family = "noncentral_d", d, 80)
 h0_mod <- prior(family = "point", point = 0)
 h1_mod <- prior(family = "normal", mean = 0, sd = 1)
 

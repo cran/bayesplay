@@ -52,3 +52,48 @@ plot(norm_mod) +
 	labs(title  = "normal likelihood") + 
 	theme_linedraw()
 
+## -----------------------------------------------------------------------------
+
+data_model <- likelihood("noncentral_d", d = 0, n = 20)
+
+d_model1 <- extract_predictions(data_model * prior("cauchy", 0, .707))
+d_model2 <- extract_predictions(data_model * prior("point", 0))
+visual_compare(d_model1, d_model2)
+
+## -----------------------------------------------------------------------------
+plot(extract_posterior(data_model * prior("cauchy", 0, .707)), add_prior = TRUE)
+
+## -----------------------------------------------------------------------------
+visual_compare(d_model1, d_model2) +
+    scale_colour_manual(values = c("green", "blue"),
+                        labels = c("d_model1", "d_model2"), name = "Model")
+
+## -----------------------------------------------------------------------------
+plot(extract_posterior(data_model * prior("cauchy", 0, .707)), add_prior = TRUE) +
+    scale_colour_manual(values = c("green", "blue"),
+                        labels = c("posterior", "prior"), name = NULL)
+
+## -----------------------------------------------------------------------------
+visual_compare(d_model1, d_model2) +
+    scale_linetype_manual(values = c(1, 2),
+                        labels = c("d_model1", "d_model2"), name = "Model")
+
+## -----------------------------------------------------------------------------
+plot(extract_posterior(data_model * prior("cauchy", 0, .707)), add_prior = TRUE) +
+    scale_linetype_manual(values = c(1, 2),
+                        labels = c("posterior", "prior"), name = NULL)
+
+## -----------------------------------------------------------------------------
+visual_compare(d_model1, d_model2) +
+    scale_linetype_manual(values = c(1, 2),
+                        labels = c("d_model1", "d_model2"), name = NULL) +
+    scale_colour_manual(values = c("grey", "black"),
+                        labels = c("d_model1", "d_model2"), name = NULL)
+
+## -----------------------------------------------------------------------------
+plot(extract_posterior(data_model * prior("cauchy", 0, .707)), add_prior = TRUE) +
+    scale_linetype_manual(values = c(1, 2),
+                        labels = c("posterior", "prior"), name = NULL) + 
+    scale_colour_manual(values = c("black", "black"),
+                        labels = c("posterior", "prior"), name = NULL)
+

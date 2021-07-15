@@ -6,6 +6,8 @@
 <!-- badges: start -->
 
 ![R-CMD-check](https://github.com/bayesplay/bayesplay/workflows/R-CMD-check/badge.svg)
+![CRAN](https://www.r-pkg.org/badges/version-ago/bayesplay)
+![downloads](https://cranlogs.r-pkg.org/badges/grand-total/bayesplay)
 [![codecov](https://codecov.io/gh/bayesplay/bayesplay/branch/main/graph/badge.svg?token=hEQ5HY3XOd)](https://codecov.io/gh/bayesplay/bayesplay)
 
 <!-- badges: end -->
@@ -17,8 +19,12 @@ tools.
 
 ## Installation
 
-You can install the development version from
-[GitHub](https://github.com/) with:
+bayesplay is now on CRAN. You can install it with:
+
+    install.packages("bayesplay")
+
+Or if you want to live on the edge, you can install the development
+version from [GitHub](https://github.com/) with:
 
     # install.packages("devtools")
     devtools::install_github("bayesplay/bayesplay")

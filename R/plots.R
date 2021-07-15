@@ -91,7 +91,8 @@ handle_binomial_marginal <- function(x, n, model_name) {
   observation_df <- data.frame(
     observation = observation,
     auc = model_func(observation),
-    color = model_name
+    color = model_name,
+    linetype = model_name
   )
 
   observation_range <- seq(plot_range[1], plot_range[2], 1)
@@ -112,7 +113,7 @@ handle_binomial_marginal <- function(x, n, model_name) {
       ggplot2::aes(
         x = observation,
         y = auc,
-        colour = model_name
+        colour = model_name,
       ),
       size = 2, shape = 21, fill = "white"
     ) +
@@ -121,7 +122,7 @@ handle_binomial_marginal <- function(x, n, model_name) {
       ggplot2::aes(
         x = observation,
         y = auc,
-        colour = model_name
+        colour = model_name,
       ),
       size = 2, shape = 16
     ) +
@@ -130,7 +131,13 @@ handle_binomial_marginal <- function(x, n, model_name) {
       values = "black",
       name = NULL,
       labels = NULL,
-      guide = FALSE
+      guide = "none"
+    ) +
+    ggplot2::scale_linetype_manual(
+      values = 1,
+      name = NULL,
+      labels = NULL,
+      guide = "none"
     ) +
     ggplot2::scale_x_continuous(
       limits = plot_range,
@@ -171,15 +178,16 @@ handle_other_marginal <- function(x, n, model_name) {
   x <- observation
   y <- model_func(observation)
   color <- model_name
+  linetype <- model_name
   observation_df <- data.frame(
-    x = x, y = y, color = color
+    x = x, y = y, color = color, linetype = linetype
   )
 
 
   ggplot2::ggplot() +
     ggplot2::geom_function(
       fun = model_func,
-      ggplot2::aes(colour = model_name)
+      ggplot2::aes(colour = model_name, linetype = model_name)
     ) +
     ggplot2::geom_point(
       data = observation_df,
@@ -195,10 +203,16 @@ handle_other_marginal <- function(x, n, model_name) {
       values = "black",
       name = NULL,
       labels = NULL,
-      guide = FALSE,
+      guide = "none"
+    ) +
+    ggplot2::scale_linetype_manual(
+      values = 1,
+      name = NULL,
+      labels = NULL,
+      guide = "none"
     ) +
     ggplot2::scale_x_continuous(
-      limits = plot_range,
+      limits = plot_range
     ) +
     NULL
 }
@@ -281,6 +295,12 @@ plot_weighted_likelihood <- function(x, n) {
 
 
 plot_posterior <- function(x, n) {
+  if (x@prior_obj@dist_type == "point") {
+    return(
+      plot_point(x@prior_obj, n) +
+        ggplot2::labs(y = "Density")
+    )
+  }
   ggplot2::ggplot() +
     ggplot2::geom_function(
       fun = Vectorize(x$posterior_function),
@@ -296,11 +316,11 @@ plot_pp <- function(x, n) {
   ggplot2::ggplot() +
     ggplot2::geom_function(
       fun = Vectorize(x$posterior_function),
-      ggplot2::aes(color = "blue")
+      ggplot2::aes(color = "blue", linetype = "blue"),
     ) +
     ggplot2::geom_function(
       fun = Vectorize(x@prior_obj@func),
-      ggplot2::aes(color = "red")
+      ggplot2::aes(color = "red", linetype = "red"),
     ) +
     ggplot2::xlim(x@prior_obj@plot$range) +
     ggplot2::labs(x = posterior_labs$x, y = posterior_labs$y) +
@@ -309,6 +329,12 @@ plot_pp <- function(x, n) {
       labels = c("posterior", "prior"),
       name = NULL
     ) +
+    ggplot2::scale_linetype_manual(
+      values = c(1, 1),
+      labels = c("posterior", "prior"),
+      name = NULL
+    ) +
+    # ggplot2::labs(colours = c("posterior", "prior")) +
     ggplot2::expand_limits(y = 0) +
     # ggplot2::theme_minimal(base_size = 16) +
     NULL
@@ -323,9 +349,9 @@ plot_pp <- function(x, n) {
 #'
 #' @examples
 #' # define two models
-#' data_model <- likelihood(family = "noncentral_d", .8, 79)
+#' data_model <- likelihood(family = "normal", .5, 1)
 #' h0_mod <- prior(family = "point", point = 0)
-#' h1_mod <- prior(family = "normal", mean = 0, sd = 1)
+#' h1_mod <- prior(family = "normal", mean = 0, sd = 10)
 #' m0 <- extract_predictions(data_model * h0_mod)
 #' m1 <- extract_predictions(data_model * h1_mod)
 #'
@@ -346,10 +372,15 @@ visual_compare <- function(model1, model2, ratio = FALSE) {
       gginnards::append_layers(
         model1_layer,
         model2_layer$layers
-      ) + ggplot2::scale_colour_manual(
-        values = c("red", "blue"),
-        name = "Model"
-      )
+      ) +
+        ggplot2::scale_colour_manual(
+          values = c("red", "blue"),
+          name = "Model"
+        ) +
+        ggplot2::scale_linetype_manual(
+          values = c(1, 1),
+          name = "Model"
+        )
     ))
   }
 
@@ -376,12 +407,14 @@ visual_compare <- function(model1, model2, ratio = FALSE) {
       return(ggplot2::ggplot(data = df) +
         ggplot2::geom_point(ggplot2::aes(x = x, y = y)) +
         ggplot2::geom_line(ggplot2::aes(x = x, y = y)) +
-    ggplot2::scale_x_continuous(
-        c(min(get_max_range(model1), get_max_range(model2)),
-        max(get_max_range(model1), get_max_range(model2))),
-      breaks = integer_breaks()
-    ) +
-      ggplot2::geom_hline(yintercept = 1, linetype = 2) +
+        ggplot2::scale_x_continuous(
+          c(
+            min(get_max_range(model1), get_max_range(model2)),
+            max(get_max_range(model1), get_max_range(model2))
+          ),
+          breaks = integer_breaks()
+        ) +
+        ggplot2::geom_hline(yintercept = 1, linetype = 2) +
         ggplot2::scale_y_log10() +
         ggplot2::labs(
           x = "Outcome",
@@ -389,24 +422,24 @@ visual_compare <- function(model1, model2, ratio = FALSE) {
         ))
     }
     if (model1@likelihood_obj@data$family != "binomial") {
-    return(ggplot2::ggplot() +
-      ggplot2::geom_function(fun = ratio_function, n = 101) +
-      ggplot2::xlim(c(
-        min(
-          get_max_range(model1),
-          get_max_range(model2)
-        ),
-        max(
-          get_max_range(model1),
-          get_max_range(model2)
-        )
-      )) +
-      ggplot2::geom_hline(yintercept = 1, linetype = 2) +
-      ggplot2::scale_y_log10() +
-      ggplot2::labs(
-        x = "Outcome",
-        y = paste0("Log 10 BF ", model_name1, " / ", model_name2)
-      ))
+      return(ggplot2::ggplot() +
+        ggplot2::geom_function(fun = ratio_function, n = 101) +
+        ggplot2::xlim(c(
+          min(
+            get_max_range(model1),
+            get_max_range(model2)
+          ),
+          max(
+            get_max_range(model1),
+            get_max_range(model2)
+          )
+        )) +
+        ggplot2::geom_hline(yintercept = 1, linetype = 2) +
+        ggplot2::scale_y_log10() +
+        ggplot2::labs(
+          x = "Outcome",
+          y = paste0("Log 10 BF ", model_name1, " / ", model_name2)
+        ))
     }
   }
 }
