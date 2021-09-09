@@ -1,7 +1,7 @@
 Package: bayesplay
 Type: Package
 Title: The Bayes Factor Playground
-Version: 0.9.1
+Version: 0.9.2
 Description: A lightweight modelling syntax for defining likelihoods and priors
     and for computing Bayes factors for simple one parameter models. It includes
     functionality for computing and plotting priors, likelihoods, and model
@@ -20,8 +20,8 @@ Authors@R:
             email = "lincoln@colling.net.nz",
             role = c("aut","cre"))
 NeedsCompilation: no
-Packaged: 2021-07-14 22:28:04 UTC; lc663
+Packaged: 2021-09-09 07:17:12 UTC; lc663
 Author: Lincoln J Colling [aut, cre] (<https://orcid.org/0000-0002-3572-7758>)
 Maintainer: Lincoln J Colling <lincoln@colling.net.nz>
 Repository: CRAN
-Date/Publication: 2021-07-15 04:10:02 UTC
+Date/Publication: 2021-09-09 07:50:02 UTC
