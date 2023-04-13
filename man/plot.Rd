@@ -3,33 +3,33 @@
 \name{plot}
 \alias{plot}
 \alias{plot.prior}
-\alias{plot.likelihood}
 \alias{plot.posterior}
+\alias{plot.likelihood}
 \alias{plot.product}
 \alias{plot.prediction}
 \title{Plot a bayesplay object}
 \usage{
-plot(x, ...)
-
 \method{plot}{prior}(x, ...)
-
-\method{plot}{likelihood}(x, ...)
 
 \method{plot}{posterior}(x, add_prior = FALSE, ...)
 
+\method{plot}{likelihood}(x, ...)
+
 \method{plot}{product}(x, ...)
 
-\method{plot}{prediction}(x, ...)
+\method{plot}{prediction}(x, model_name = "model", ...)
 }
 \arguments{
-\item{x}{a \code{likelihood}, \code{prior}, \code{posterior}, \code{product} or \code{predictive} object #nolint}
+\item{x}{a \code{prediction} object}
 
 \item{...}{arguments passed to methods}
 
 \item{add_prior}{set to TRUE to add prior to the posterior plot}
+
+\item{model_name}{name of the model}
 }
 \value{
-a \code{ggplo2} object
+a \code{ggplot2} object
 }
 \description{
 Plots an object created by bayesplay

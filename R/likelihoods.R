@@ -26,87 +26,90 @@ make_likelihood_data <- function(family, params, func) {
 
 
 
-dt_scaled <- function(x, df, mean = 0, sd = 1, ncp = 0) {
+
+dt_scaled <- function(x, df, mean = 0L, sd = 1L, ncp = 0L) {
   stats::dt((x - mean) / sd, df, ncp = ncp, log = FALSE) / sd
 }
 
 d_variance <- function(d, df) {
-  (df + df + 2) / ((df + 1) * (df + 1)) + ((d * d) / (2 * (df + df + 2)))
+  (df + df + 2L) / ((df + 1L) * (df + 1L)) + ((d * d) / (2L * (df + df + 2L)))
 }
 
 d2_variance <- function(d, n1, n2) {
-  (n1 + n2) / ((n1) * (n2)) + ((d * d) / (2 * (n1 + n2)))
+  (n1 + n2) / ((n1) * (n2)) + ((d * d) / (2L * (n1 + n2)))
 }
 
-get_plot_range <- function(family) {
-  w <- 4 # width multipler
+get_plot_range <- function(family) { # nolint
+  w <- 4L # width multipler
 
 
-  if (class(family) %in% c("binomial", "beta")) {
+  if (inherits(family, "binomial") || inherits(family, "beta")) {
     return(function(params) {
-      c(0, 1)
+      c(0L, 1L)
     })
   }
 
-  if (class(family) %in% c("normal", "student_t")) {
+  if (inherits(family, "normal") || inherits(family, "student_t")) {
     return(function(params) {
-      location <- params$mean
-      width <- w * params$sd
+      location <- params[["mean"]]
+      width <- w * params[["sd"]]
       c(location - width, location + width)
     })
   }
 
-  if (class(family) == "noncentral_d") {
+  if (inherits(family, "noncentral_d")) {
     return(function(params) {
-      location <- params$d
-      width <- w * sqrt(d_variance(params$d, params$n - 1))
+      location <- params[["d"]]
+      width <- w * sqrt(d_variance(params[["d"]], params[["n"]] - 1L))
       c(location - width, location + width)
     })
   }
 
-  if (class(family) == "noncentral_t") {
+  if (inherits(family, "noncentral_t")) {
     return(function(params) {
-      location <- params$t
-      d <- location * sqrt(params$df + 1)
-      width <- w * sqrt(d_variance(d, params$df))
+      location <- params[["t"]]
+      d <- location * sqrt(params[["df"]] + 1L)
+      width <- w * sqrt(d_variance(d, params[["df"]]))
       c(location - width, location + width)
     })
   }
 
-  if (class(family) == "noncentral_d2") {
+  if (inherits(family, "noncentral_d2")) {
     return(function(params) {
-      location <- params$d
-      width <- w * sqrt(d2_variance(params$d, params$n1, params$n2))
+      location <- params[["d"]]
+      width <- w *
+      sqrt(d2_variance(params[["d"]], params[["n1"]], params[["n2"]]))
       c(location - width, location + width)
     })
   }
 
-  if (class(family) == "point") {
+  if (inherits(family, "point")) {
     return(function(params) {
-      location <- params$point
+      location <- params[["point"]]
       width <- w
       c(location - width, location + width)
     })
   }
 
 
-  if (class(family) == "uniform") {
+  if (inherits(family, "uniform")) {
     return(function(params) {
       c(
-        params$min - abs(params$min - params$max),
-        params$max + abs(params$min - params$max)
+        params[["min"]] - abs(params[["min"]] - params[["max"]]),
+        params[["max"]] + abs(params[["min"]] - params[["max"]])
       )
     })
   }
 
-  if (class(family) == "cauchy") {
+  if (inherits(family, "cauchy")) {
     return(function(params) {
-      location <- params$location
-      width <- params$scale * w
+      location <- params[["location"]]
+      width <- params[["scale"]] * w
       c(location - width, location + width)
     })
   }
 }
+
 
 
 #################################################################
@@ -115,7 +118,8 @@ get_plot_range <- function(family) {
 
 
 #' Specify a likelihood
-#' @description Define likelihoods using different different distribution families #nolint
+#' @description Define likelihoods using different different distribution
+#' families
 #' @param family the likelihood distribution (see details)
 #' @param ... see details
 #'
@@ -128,8 +132,12 @@ get_plot_range <- function(family) {
 #' * \code{noncentral_d} a noncentral t (for one sample d)
 #' * \code{noncentral_d2} a noncentral t (for independent samples d)
 #' * \code{binomial} a binomial distribution
+#'
+#'
 #' The parameters that need to be specified will be dependent on the
 #' family
+#'
+#'
 #' ## normal distribution
 #' When \code{family} is set to \code{normal} then the following
 #' parameters must be set
@@ -163,7 +171,8 @@ get_plot_range <- function(family) {
 #' * \code{n2} the sample size of group 2
 #'
 #' \eqn{s_{\mathrm{pooled}}}{s_pooled} is set as below:
-#' \deqn{s_{\mathrm{pooled}} = \sqrt{\frac{(n_1 - 1)s^2_1 + (n_2 - 1)s^2_2 }{n_1 + n_2 - 2}}}{\sqrt(((n1 - 1) * s1^2 + (n2 - 1)*s2^2)/(n1 + n2 - 2))}
+#' \deqn{s_{\mathrm{pooled}} = \sqrt{\frac{(n_1 - 1)s^2_1 + (n_2 - 1)s^2_2 }
+#' {n_1 + n_2 - 2}}}{\sqrt(((n1 - 1) * s1^2 + (n2 - 1)*s2^2)/(n1 + n2 - 2))}
 #'
 #'
 #' ## binomial distribution
@@ -202,7 +211,6 @@ likelihood <- function(family, ...) {
   make_likelihood(family = new(family), ...)
 }
 
-likelihood_labs <- list(x = "theta", y = "Pr(Outcome)")
 
 
 
@@ -272,13 +280,13 @@ setMethod(
 #' @param sd the standard error of the mean
 #' @noRd
 make_likelihood.normal <- function(family, mean, sd) { # nolint
-  if (missing(mean) | missing(sd)) {
+  if (missing(mean) || missing(sd)) {
     stop("You must specify a `mean` and `sd` for a normal likelihood",
       call. = FALSE
     )
   }
 
-  if (sd <= 0) {
+  if (sd <= 0L) {
     stop("`sd` must be greater than 0")
   }
 
@@ -300,7 +308,7 @@ make_likelihood.normal <- function(family, mean, sd) { # nolint
       "likelihood(family = \"normal\", mean = x, sd = ",
       sd, ")"
     ),
-    observation = params$mean,
+    observation = params[["mean"]],
     desc = desc,
     dist_type = "continuous",
     plot = list(
@@ -319,18 +327,18 @@ make_likelihood.normal <- function(family, mean, sd) { # nolint
 #' @noRd
 make_likelihood.student_t <- function(family, mean, sd, df) { # nolint
 
-  if (missing(mean) | missing(sd) | missing(df)) {
+  if (missing(mean) || missing(sd) || missing(df)) {
     stop("You must specify a `mean`, `sd`, and `df` for a student t likelihood",
       call. = FALSE
     )
   }
 
-  if (sd <= 0) {
+  if (sd <= 0L) {
     stop("`sd` must be greater than 0")
   }
 
 
-  if (df <= 0) {
+  if (df <= 0L) {
     stop("`df` must be greater than 0")
   }
 
@@ -353,7 +361,7 @@ make_likelihood.student_t <- function(family, mean, sd, df) { # nolint
       "likelihood(family = \"student_t\", mean = x, sd = ",
       sd, ", df = ", df, ")"
     ),
-    observation = params$mean,
+    observation = params[["mean"]],
     desc = desc,
     dist_type = "continuous",
     plot = list(
@@ -370,13 +378,13 @@ make_likelihood.student_t <- function(family, mean, sd, df) { # nolint
 #' @param n sample size
 #' @noRd
 make_likelihood.noncentral_d <- function(family, d, n) { # nolint
-  if (missing(d) | missing(n)) {
+  if (missing(d) || missing(n)) {
     stop("You must specify a `d` and `n` for a noncentral d likelihood",
       call. = FALSE
     )
   }
 
-  if (n <= 0) {
+  if (n <= 0L) {
     stop("`n` must be greater than zero",
       call. = FALSE
     )
@@ -396,7 +404,7 @@ make_likelihood.noncentral_d <- function(family, d, n) { # nolint
       "likelihood(family = \"noncentral_d\", d = x, n = ",
       n, ")"
     ),
-    observation = params$d,
+    observation = params[["d"]],
     desc = desc, dist_type = "continuous",
     plot = list(
       range = get_plot_range(family)(params),
@@ -412,13 +420,13 @@ make_likelihood.noncentral_d <- function(family, d, n) { # nolint
 #' @noRd
 make_likelihood.noncentral_t <- function(family, t, df) { # nolint
 
-  if (missing(t) | missing(df)) {
+  if (missing(t) || missing(df)) {
     stop("You must specify a `t` and `df` for a noncentral t likelihood",
       call. = FALSE
     )
   }
 
-  if (df <= 0) {
+  if (df <= 0L) {
     stop("`df` must be greater than 0",
       call. = FALSE
     )
@@ -437,7 +445,7 @@ make_likelihood.noncentral_t <- function(family, t, df) { # nolint
       "likelihood(family = \"noncentral_t\", t = x, df = ",
       df, ")"
     ),
-    observation = params$t,
+    observation = params[["t"]],
     desc = desc,
     dist_type = "continuous",
     plot = list(
@@ -456,14 +464,14 @@ make_likelihood.noncentral_t <- function(family, t, df) { # nolint
 #' @noRd
 make_likelihood.binomial <- function(family, successes, trials) { # nolint
 
-  if (missing(trials) | missing(successes)) {
+  if (missing(trials) || missing(successes)) {
     stop("You must specify `successes` and `trials` for a binomial likelihood",
       call. = FALSE
     )
   }
 
 
-  if (trials <= 0) {
+  if (trials <= 0L) {
     stop("`trials` must be greater than or equal to 1", call. = FALSE)
   }
 
@@ -472,7 +480,7 @@ make_likelihood.binomial <- function(family, successes, trials) { # nolint
   }
 
 
-  if (successes < 0) {
+  if (successes < 0L) {
     stop("`successes` must be greater than or equal to 0", call. = FALSE)
   }
 
@@ -493,7 +501,7 @@ make_likelihood.binomial <- function(family, successes, trials) { # nolint
     marginal = paste0(
       "likelihood(family = \"binomial\", successes = x, trials = ", trials, ")"
     ),
-    observation = params$successes,
+    observation = params[["successes"]],
     desc = desc,
     dist_type = "continuous",
     plot = list(
@@ -511,14 +519,14 @@ make_likelihood.binomial <- function(family, successes, trials) { # nolint
 #' @noRd
 make_likelihood.noncentral_d2 <- function(family, d, n1, n2) { # nolint
 
-  if (missing(d) | missing(n1) | missing(n2)) {
+  if (missing(d) || missing(n1) || missing(n2)) {
     stop("You must specify `d`, `n1`, and `n2` for a noncentral d2 likelihood",
       call. = FALSE
     )
   }
 
 
-  if (n1 <= 0 | n2 <= 0) {
+  if (n1 <= 0L || n2 <= 0L) {
     stop("`n1` and `n2` must be greater than or equal to 1",
       call. = FALSE
     )
@@ -537,7 +545,7 @@ make_likelihood.noncentral_d2 <- function(family, d, n1, n2) { # nolint
       "likelihood(family = \"noncentral_d2\", d = x,  n1 = ",
       n1, ", n2 = ", n2, ")"
     ),
-    observation = params$d,
+    observation = params[["d"]],
     desc = desc, dist_type = "continuous",
     plot = list(
       range = get_plot_range(family)(params),
